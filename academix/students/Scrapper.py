@@ -6,7 +6,7 @@ class Scrapper:
     def __init__(self, username, password):
         self.schedule_url = 'https://student.guc.edu.eg/Web/Student/Schedule/GroupSchedule.aspx'
         self.courses_url = 'https://cms.guc.edu.eg/apps/student/HomePageStn.aspx'
-        self.username = username
+        self.username = username+"@student.guc.edu.eg"
         self.password = password
 
     # converts(returns) the index of the day given the day's name
@@ -83,7 +83,7 @@ class Scrapper:
         r = requests.get(self.courses_url, auth=HttpNtlmAuth(self.username, self.password))
         if r.status_code != 200:
             print("An Error Occurred. Check Credentials And Try Again.")
-            return
+            return [], False
         else:
             soup = BeautifulSoup(r.content, 'html.parser')
             table = soup.find('table', id='ContentPlaceHolderright_ContentPlaceHoldercontent_GridViewcourses')
@@ -92,4 +92,4 @@ class Scrapper:
             for course in course_rows:
                 course_name = course.findChildren('td', recursive=False)[1].text
                 courses.append(course_name)
-            return courses
+            return courses, True
