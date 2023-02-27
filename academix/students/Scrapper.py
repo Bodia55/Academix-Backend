@@ -1,6 +1,12 @@
 import requests
 from requests_ntlm import HttpNtlmAuth
 from bs4 import BeautifulSoup, NavigableString
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import chromedriver_autoinstaller
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class Scrapper:
     def __init__(self, username, password):
@@ -93,3 +99,56 @@ class Scrapper:
                 course_name = course.findChildren('td', recursive=False)[1].text
                 courses.append(course_name)
             return courses, True
+        
+    # get available years
+    def get_available_years(self):
+        available_years = []
+        url = f'https://{self.username}:{self.password}@student.guc.edu.eg/external/student/grade/Transcript.aspx'
+        chromedriver_autoinstaller.install()
+        options = Options()
+        options.headless = True
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument('--window-size=1920,1200')
+        driver = webdriver.Chrome(options=options)
+        driver.get(url)
+        select_dropdown = driver.find_element(By.ID, 'stdYrLst')
+        options = select_dropdown.find_elements(By.TAG_NAME, 'option')
+        options.pop(0)
+        for option in options:
+            available_years.append(option.text)
+        return available_years
+    
+    # gets the selected dropdown option value
+    def get_selected_year_value(self, year):
+        available_years = self.get_available_years()
+        for i in range(1, len(available_years)):
+            if available_years[i] == year:
+                return i+1
+        return -1
+
+    # get your gpa for a specific year
+    def get_gpa(self, uni_year):
+        uni_year_value = self.get_selected_year_value(uni_year)
+        url = f'https://{self.username}:{self.password}@student.guc.edu.eg/external/student/grade/Transcript.aspx'
+        chromedriver_autoinstaller.install()
+        options = Options()
+        options.headless = True
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument('--window-size=1920,1200')
+        driver = webdriver.Chrome(options=options)
+        driver.get(url)
+        drop_down_select = driver.find_element(By.ID, 'stdYrLst')
+        option = drop_down_select.find_element(By.CSS_SELECTOR, f'option[value="{uni_year_value}"]')
+        option.click()
+        try:
+            table = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, 'Table4'))
+            )
+            rows = table.find_elements(By.TAG_NAME, 'tr')
+            gpa_row = rows[len(rows)-1]
+            gpa = gpa_row.find_element(By.TAG_NAME, 'span')
+            print(gpa.text)
+            driver.quit()
+        except:
+            driver.quit()
+        

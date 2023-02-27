@@ -1,7 +1,7 @@
 from django.http import HttpRequest
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from .Scrapper import Scrapper
+from .scrapper import Scrapper
 
 class StudentAPIView(ViewSet):
     def schedule(self, request):
