@@ -147,7 +147,7 @@ class Scrapper:
             rows = table.find_elements(By.TAG_NAME, 'tr')
             gpa_row = rows[len(rows)-1]
             gpa = gpa_row.find_element(By.TAG_NAME, 'span')
-            print(gpa.text)
+            return gpa.text
             driver.quit()
         except:
             driver.quit()
