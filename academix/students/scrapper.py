@@ -118,6 +118,7 @@ class Scrapper:
             available_years.append(option.text)
         return available_years
     
+    
     # gets the selected dropdown option value
     def get_selected_year_value(self, year):
         available_years = self.get_available_years()
@@ -136,7 +137,10 @@ class Scrapper:
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument('--window-size=1920,1200')
         driver = webdriver.Chrome(options=options)
-        driver.get(url)
+        try:
+            driver.get(url)
+        except:
+            return "", False
         drop_down_select = driver.find_element(By.ID, 'stdYrLst')
         option = drop_down_select.find_element(By.CSS_SELECTOR, f'option[value="{uni_year_value}"]')
         option.click()
@@ -147,8 +151,7 @@ class Scrapper:
             rows = table.find_elements(By.TAG_NAME, 'tr')
             gpa_row = rows[len(rows)-1]
             gpa = gpa_row.find_element(By.TAG_NAME, 'span')
-            return gpa.text
-            driver.quit()
+            return gpa.text, True
         except:
-            driver.quit()
+            return "", False
         
