@@ -12,9 +12,8 @@ class StudentAPIView(ViewSet):
             scrapper = Scrapper(username, password)
             courses, success = scrapper.get_courses_data()
             return Response(data={'courses': courses, 'success': success}, headers={
-                'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
-                'Accept': '*/*',
+                'Access-Control-Allow-Credentials': 'true'
             })
 
     def gpa(self, request):
