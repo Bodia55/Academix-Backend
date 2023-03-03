@@ -9,6 +9,7 @@ import geckodriver_autoinstaller
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import mechanicalsoup
 
 class Scrapper:
     def __init__(self, username, password):
@@ -61,6 +62,51 @@ class Scrapper:
                     data = table.find("span")
                     day_schedule.append(data.text)
             return day_schedule
+        
+    # Get ID and Full name    
+    def get_idname(self):
+        r = requests.get(self.schedule_url, auth=HttpNtlmAuth(self.username, self.password))
+        if r.status_code != 200:
+            print("An Error Occurred. Check Credentials And Try Again.")
+            return ["",""], False
+        else:
+            soup = BeautifulSoup(r.content, 'html.parser')
+            span = soup.find("span",id="scdTpLbl")
+            result = span.text.split(" - ")
+
+            ## Returns ID and Full Name 
+            return result, True
+
+    # Get ID and Full name    
+    def get_gpa_please(self, year):
+        transcriptUrl = "https://student.guc.edu.eg/external/student/grade/Transcript.aspx"
+
+        # Create a browser object with MechanicalSoup
+        browser = mechanicalsoup.StatefulBrowser()
+
+        # Set the authentication credentials
+        browser.session.auth = HttpNtlmAuth(self.username, self.password)
+
+        # Navigate to the web page
+        res = browser.open(transcriptUrl)
+        if res.status_code != 200:
+            print("An Error Occurred. Check Credentials And Try Again.")
+            return "", False
+        else:
+            # Get the option value from its text 
+            option_value =  browser.page.find("option", string=year)['value']
+
+            # Submit the form
+            form = browser.select_form('form')
+            form.set_select({'stdYrLst': option_value})
+            res = browser.submit_selected()
+            if res.status_code != 200:
+                print("An Error Occurred. Check Credentials And Try Again. SC: ", res.status_code)
+                return "", False
+            else:
+                # Extract the information you need from the resulting page
+                return browser.page.find("span",id="cmGpaLbl").text, True
+
 
     # prints the week's schedule as a 2d array with the index being the day, with starting index 0 for saturday
     def get_week_schedule_printer(self):
@@ -68,6 +114,14 @@ class Scrapper:
         for i in range(0, 6):
             week_schedule.append(self.get_day_schedule_formatted_data(i))
         print(week_schedule)
+
+    # returns the week schedule data
+    def get_week_schedule_data(self):
+        week_schedule = []
+        for i in range(0, 6):
+            week_schedule.append(self.get_day_schedule_formatted_data(i))
+        return week_schedule
+    
     
     # returns a list representing the day's schedule
     def get_day_schedule_formatted_data(self, day_index: int):

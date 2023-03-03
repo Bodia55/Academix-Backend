@@ -7,5 +7,8 @@ urlpatterns = [
     })),
     path('gpa', StudentAPIView.as_view({
     'post': 'gpa',
+    })),
+    path('idname', StudentAPIView.as_view({
+    'post': 'idname',
     }))
 ]

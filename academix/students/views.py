@@ -16,6 +16,13 @@ class StudentAPIView(ViewSet):
             username = request.data["username"]
             password = request.data["password"]
             scrapper = Scrapper(username, password)
-            gpa, success = scrapper.get_gpa('2022-2023')
+            gpa, success = scrapper.get_gpa_please('2022-2023')
             return Response({'gpa': gpa, 'success':success})
+    def idname(self, request):
+        if request.method == 'POST':
+            username = request.data["username"]
+            password = request.data["password"]
+            scrapper = Scrapper(username, password)
+            idName, success = scrapper.get_idname()
+            return Response({'id': idName[0], 'name': idName[1], 'success':success})
 
