@@ -175,19 +175,18 @@ class Scrapper:
                 available_years.append(option.text)
             return available_years  
         except:
-            geckodriver_autoinstaller.install()
-            options = firefoxOptions()
+            options = chromeOptions()
             options.headless = True
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
             options.add_argument('--window-size=1920,1200')
-            driver = webdriver.Firefox(options=options)
+            driver = webdriver.Chrome(options=options)
             driver.get(url)
             select_dropdown = driver.find_element(By.ID, 'stdYrLst')
             options = select_dropdown.find_elements(By.TAG_NAME, 'option')
             options.pop(0)
             for option in options:
                 available_years.append(option.text)
-            return available_years
+            return available_years  
         
     
     # gets the selected dropdown option value
