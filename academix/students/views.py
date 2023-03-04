@@ -11,10 +11,14 @@ class StudentAPIView(ViewSet):
             password = request.data["password"]
             scrapper = Scrapper(username, password)
             courses, success = scrapper.get_courses_data()
-            return Response(data={'courses': courses, 'success': success}, headers={
+            response = Response(data={'courses': courses, 'success': success}, headers={
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Credentials': 'true'
             })
+            response['Access-Control-Allow-Origin'] = 'https://gucentrall.vercel.app'
+            response['Access-Control-Allow-Headers'] = 'access-control-allow-origin, content-type'
+            response['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+            return response
 
     def gpa(self, request):
         if request.method == 'POST':
